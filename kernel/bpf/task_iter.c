@@ -50,7 +50,8 @@ static void *task_seq_start(struct seq_file *seq, loff_t *pos)
 	if (!task)
 		return NULL;
 
-	++*pos;
+	if (*pos == 0)
+		++*pos;
 	return task;
 }
 
@@ -176,10 +177,11 @@ again:
 		f = fcheck_files(curr_files, curr_fd);
 		if (!f)
 			continue;
+		if (!get_file_rcu(f))
+			continue;
 
 		/* set info->fd */
 		info->fd = curr_fd;
-		get_file(f);
 		rcu_read_unlock();
 		return f;
 	}
@@ -209,7 +211,8 @@ static void *task_file_seq_start(struct seq_file *seq, loff_t *pos)
 		return NULL;
 	}
 
-	++*pos;
+	if (*pos == 0)
+		++*pos;
 	info->task = task;
 	info->files = files;
 
