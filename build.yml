@@ -1,0 +1,15 @@
+kind: pipeline
+name: BUILD
+
+clone:
+  disable: true
+
+steps:
+- name: gnu-gcc
+  image: ubuntu:latest
+  commands:
+    - DEBIAN_FRONTEND=noninteractive apt-get update && apt-get -yq install build-essential gcc flex bison bc git dwarves wget libc6-dev libncurses5-dev rsync python python3 kmod cpio libelf-dev libssl-dev fakeroot
+    - wget http://archive.ubuntu.com/ubuntu/pool/universe/d/dwarves-dfsg/dwarves_1.17-1_amd64.deb && dpkg -i dwarves_1.17-1_amd64.deb
+    - git clone --depth=1 https://github.com/theradcolor/linux source && cd source
+    - make arch_defconfig
+    - make -j$(nproc --all) deb-pkg
